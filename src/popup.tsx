@@ -27,27 +27,27 @@ function IndexPopup() {
     <div className="plasmo-flex plasmo-flex-col plasmo-w-96 plasmo-h-72 plasmo-bg-gray-900 plasmo-bg-opacity-90 plasmo-text-white plasmo-shadow-lg">
       <div className="plasmo-flex plasmo-justify-around">
         <button
-          className={`plasmo-flex plasmo-items-center plasmo-gap-2 plasmo-px-8 plasmo-py-2 plasmo-transition-all ${
+          className={`plasmo-rounded-b-lg plasmo-flex plasmo-items-center plasmo-gap-2 plasmo-px-8 plasmo-py-2 plasmo-transition-all ${
             activeTab === "users-list"
-              ? "plasmo-bg-blue-500 plasmo-text-white plasmo-shadow-md"
+              ? "plasmo-bg-blue-600 plasmo-text-white plasmo-shadow-md plasmo-shadow-blue-400 hover:plasmo-bg-blue-700"
               : "plasmo-bg-gray-800 plasmo-text-gray-400 hover:plasmo-bg-gray-700 hover:plasmo-text-white"
           }`}
           onClick={() => setActiveTab("users-list")}>
           <FaUsers /> Users
         </button>
         <button
-          className={`plasmo-flex plasmo-items-center plasmo-gap-2 plasmo-px-8 plasmo-py-2 plasmo-transition-all ${
+          className={`plasmo-rounded-b-lg plasmo-flex plasmo-items-center plasmo-gap-2 plasmo-px-8 plasmo-py-2 plasmo-transition-all ${
             activeTab === "standup"
-              ? "plasmo-bg-blue-500 plasmo-text-white plasmo-shadow-md"
+              ? "plasmo-bg-blue-600 plasmo-text-white plasmo-shadow-md plasmo-shadow-blue-400 hover:plasmo-bg-blue-700"
               : "plasmo-bg-gray-800 plasmo-text-gray-400 hover:plasmo-bg-gray-700 hover:plasmo-text-white"
           }`}
           onClick={() => setActiveTab("standup")}>
           <FaClipboardList /> Standup
         </button>
         <button
-          className={`plasmo-flex plasmo-items-center plasmo-gap-2 plasmo-px-8 plasmo-py-2 plasmo-transition-all ${
+          className={`plasmo-rounded-b-lg plasmo-flex plasmo-items-center plasmo-gap-2 plasmo-px-7 plasmo-py-2 plasmo-transition-all ${
             activeTab === "grooming"
-              ? "plasmo-bg-blue-500 plasmo-text-white plasmo-shadow-md"
+              ? "plasmo-bg-blue-600 plasmo-text-white plasmo-shadow-md plasmo-shadow-blue-400 hover:plasmo-bg-blue-700"
               : "plasmo-bg-gray-800 plasmo-text-gray-400 hover:plasmo-bg-gray-700 hover:plasmo-text-white"
           }`}
           onClick={() => setActiveTab("grooming")}>

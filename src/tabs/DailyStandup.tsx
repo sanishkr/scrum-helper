@@ -100,14 +100,26 @@ const DailyStandup = () => {
               <UserCard user={shuffledUsers[currentIndex]} />
               <div className="plasmo-flex plasmo-gap-4">
                 <button
-                  onClick={handlePrev}
-                  className="plasmo-bg-blue-500 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1">
+                  onClick={() => setCurrentIndex((prev) => prev - 1)}
+                  disabled={currentIndex === 0}
+                  className={`plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1 ${
+                    currentIndex === 0
+                      ? "plasmo-bg-gray-500 plasmo-text-gray-300"
+                      : "plasmo-bg-blue-500 plasmo-text-white hover:plasmo-bg-blue-600"
+                  }`}>
                   <FaArrowLeft />
+                  {/* Prev */}
                 </button>
                 <button
-                  onClick={handleNext}
-                  className="plasmo-bg-blue-500 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1">
+                  onClick={() => setCurrentIndex((prev) => prev + 1)}
+                  disabled={currentIndex === shuffledUsers.length - 1}
+                  className={`plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1 ${
+                    currentIndex === shuffledUsers.length - 1
+                      ? "plasmo-bg-gray-500 plasmo-text-gray-300"
+                      : "plasmo-bg-blue-500 plasmo-text-white hover:plasmo-bg-blue-600"
+                  }`}>
                   <FaArrowRight />
+                  {/* Next */}
                 </button>
               </div>
             </>
