@@ -1,8 +1,8 @@
 {
   "name": "scrum-helper",
-  "displayName": "Scrum helper",
+  "displayName": "Agile Assistant",
   "version": "0.0.1",
-  "description": "An extension to help organise daily scrum actions",
+  "description": "An extension to help organise daily agile actions",
   "author": "Sns",
   "scripts": {
     "dev": "plasmo dev",
