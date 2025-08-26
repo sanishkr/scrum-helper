@@ -73,7 +73,7 @@ const DailyStandup = () => {
   return (
     <div className="plasmo-flex plasmo-flex-row plasmo-h-full plasmo-p-4 plasmo-w-full">
       {/* Left side: Buttons */}
-      <div className="plasmo-flex plasmo-flex-col plasmo-gap-4 plasmo-w-1/3 plasmo-pr-4 plasmo-border-r">
+      <div className="plasmo-flex plasmo-flex-col plasmo-gap-4 plasmo-w-1/3 plasmo-pr-4 plasmo-border-r plasmo-border-gray-600">
         <h2 className="plasmo-text-lg plasmo-font-bold">Actions</h2>
         <button
           onClick={handleShuffleUsers}
