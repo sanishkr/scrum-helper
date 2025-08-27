@@ -2,7 +2,7 @@
   "name": "scrum-helper",
   "displayName": "Agile Assistant",
   "version": "0.0.1",
-  "description": "An extension to help organise daily agile actions",
+  "description": "Chrome extension for agile teams featuring daily standup management and collaborative poker",
   "author": "Sns",
   "scripts": {
     "dev": "plasmo dev",
