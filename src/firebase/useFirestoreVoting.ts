@@ -1,14 +1,10 @@
-import {
-  deleteDoc,
-  doc,
-  getDoc,
-  onSnapshot,
-  setDoc,
-  updateDoc
-} from "firebase/firestore"
-import { useEffect, useState } from "react"
+import { collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
 
-import { firestore } from "./config"
+
+
+import { firestore } from "./config";
+
 
 export interface Vote {
   id: string
@@ -26,6 +22,7 @@ export interface VotingSession {
   createdAt: number
   createdBy: string
   participants: string[]
+  expiresAt: number
 }
 
 export const useFirestoreVoting = (initialSessionId: string | null = null) => {
@@ -45,7 +42,48 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
     } else if (!savedSessionId) {
       setLoading(false)
     }
+
+    // Note: Removed automatic cleanup to save Firestore reads
+    // Cleanup will happen naturally when users try to access expired sessions
   }, [currentSessionId])
+
+  // Function to extend session expiry (reset to 10 days from now)
+  // Only call this sparingly to save writes
+  const extendSessionExpiry = async (sessionId: string) => {
+    try {
+      const sessionRef = doc(firestore, "voting-sessions", sessionId)
+      const tenDaysInMs = 10 * 24 * 60 * 60 * 1000
+      await updateDoc(sessionRef, {
+        expiresAt: Date.now() + tenDaysInMs
+      })
+    } catch (error) {
+      console.error("Error extending session expiry:", error)
+      // Don't throw error as this is a background operation
+    }
+  }
+
+  // Manual cleanup function - only call when needed to save reads
+  const cleanupExpiredSessions = async () => {
+    try {
+      const now = Date.now()
+      const sessionsRef = collection(firestore, "voting-sessions")
+      const expiredSessionsQuery = query(
+        sessionsRef,
+        where("expiresAt", "<=", now)
+      )
+
+      const querySnapshot = await getDocs(expiredSessionsQuery)
+      const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref))
+
+      if (deletePromises.length > 0) {
+        await Promise.all(deletePromises)
+        console.log(`Cleaned up ${deletePromises.length} expired sessions`)
+      }
+    } catch (error) {
+      console.error("Error cleaning up expired sessions:", error)
+      // Don't throw error as this is a background cleanup operation
+    }
+  }
 
   useEffect(() => {
     if (!currentSessionId) {
@@ -68,11 +106,20 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
 
         if (snapshot.exists()) {
           const data = snapshot.data()
-          console.log("Setting voting session data:", {
-            id: currentSessionId,
-            ...data
-          })
-          setVotingSession({ id: currentSessionId, ...data } as VotingSession)
+          const sessionData = { id: currentSessionId, ...data } as VotingSession
+
+          // Check if session has expired
+          if (sessionData.expiresAt && sessionData.expiresAt <= Date.now()) {
+            console.log("Session has expired, removing from localStorage")
+            localStorage.removeItem("currentSessionId")
+            setCurrentSessionId(null)
+            setVotingSession(null)
+            // Optionally delete the expired session
+            deleteDoc(snapshot.ref).catch(console.error)
+          } else {
+            console.log("Setting voting session data:", sessionData)
+            setVotingSession(sessionData)
+          }
         } else {
           console.log("No voting session data, setting to null")
           setVotingSession(null)
@@ -103,13 +150,16 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
       console.log("Creating voting session:", newSessionId, storyTitle)
 
       const sessionRef = doc(firestore, "voting-sessions", newSessionId)
+      const now = Date.now()
+      const tenDaysInMs = 10 * 24 * 60 * 60 * 1000 // 10 days in milliseconds
       const newSession: Omit<VotingSession, "id"> = {
         storyTitle,
         isRevealed: false,
         votes: {},
-        createdAt: Date.now(),
+        createdAt: now,
         createdBy,
-        participants: [createdBy]
+        participants: [createdBy],
+        expiresAt: now + tenDaysInMs
       }
       await setDoc(sessionRef, newSession)
       console.log("Voting session created successfully")
@@ -127,33 +177,42 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
   }
 
   const joinSession = async (sessionId: string, userName: string) => {
-    try {
-      console.log("Joining session:", sessionId, userName)
-      const sessionRef = doc(firestore, "voting-sessions", sessionId)
+    if (!userName.trim()) return
 
-      // Check if session exists
+    setLoading(true)
+    try {
+      const sessionRef = doc(firestore, "voting-sessions", sessionId)
       const sessionSnap = await getDoc(sessionRef)
+
       if (!sessionSnap.exists()) {
-        throw new Error("Session not found")
+        setError("Session not found")
+        return
+      }
+
+      const sessionData = sessionSnap.data() as VotingSession
+
+      // Client-side expiry check to avoid unnecessary writes
+      if (sessionData.expiresAt && isSessionExpired(sessionData.expiresAt)) {
+        setError("Session has expired")
+        return
       }
 
       // Add user to participants if not already there
-      const sessionData = sessionSnap.data() as VotingSession
       if (!sessionData.participants.includes(userName)) {
         await updateDoc(sessionRef, {
+          expiresAt: Date.now() + 10 * 24 * 60 * 60 * 1000, // Extend expiry by 10 days
           participants: [...sessionData.participants, userName]
         })
       }
 
-      // Save session ID to localStorage for persistence
-      localStorage.setItem("currentSessionId", sessionId)
       setCurrentSessionId(sessionId)
-
+      localStorage.setItem("currentSessionId", sessionId)
       return sessionId
-    } catch (error) {
-      console.error("Error joining session:", error)
-      setError(error.message)
-      throw error
+    } catch (err) {
+      console.error("Error joining session:", err)
+      setError(err instanceof Error ? err.message : "Failed to join session")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -182,6 +241,7 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
         }
 
         await updateDoc(sessionRef, {
+          expiresAt: Date.now() + 10 * 24 * 60 * 60 * 1000, // Extend expiry by 10 days
           participants: updatedParticipants,
           votes: updatedVotes
         })
@@ -207,6 +267,16 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
       if (!currentSessionId) throw new Error("No active session")
 
       const sessionRef = doc(firestore, "voting-sessions", currentSessionId)
+
+      // Client-side expiry check to avoid unnecessary writes
+      if (
+        votingSession?.expiresAt &&
+        isSessionExpired(votingSession.expiresAt)
+      ) {
+        setError("Session has expired")
+        throw new Error("Session has expired")
+      }
+
       const vote: Omit<Vote, "id"> = {
         userId,
         userName,
@@ -216,8 +286,12 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
 
       // Update the votes field with the new vote
       await updateDoc(sessionRef, {
+        expiresAt: Date.now() + 10 * 24 * 60 * 60 * 1000, // Extend expiry by 10 days
         [`votes.${userId}`]: vote
       })
+
+      // Note: Removed automatic expiry extension to save writes
+      // The session expiry is set for 10 days which should be sufficient
     } catch (error) {
       console.error("Error casting vote:", error)
       setError(error.message)
@@ -233,6 +307,7 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
       // Toggle the isRevealed state
       const currentRevealed = votingSession?.isRevealed || false
       await updateDoc(sessionRef, {
+        expiresAt: Date.now() + 10 * 24 * 60 * 60 * 1000, // Extend expiry by 10 days
         isRevealed: !currentRevealed
       })
     } catch (error) {
@@ -248,6 +323,7 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
 
       const sessionRef = doc(firestore, "voting-sessions", currentSessionId)
       await updateDoc(sessionRef, {
+        expiresAt: Date.now() + 10 * 24 * 60 * 60 * 1000, // Extend expiry by 10 days
         votes: {},
         isRevealed: false
       })
@@ -276,6 +352,18 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
     }
   }
 
+  // Utility function to get days until expiry
+  const getDaysUntilExpiry = (expiresAt: number): number => {
+    const now = Date.now()
+    const msUntilExpiry = expiresAt - now
+    return Math.ceil(msUntilExpiry / (24 * 60 * 60 * 1000))
+  }
+
+  // Utility function to check if session is expired (client-side check)
+  const isSessionExpired = (expiresAt: number): boolean => {
+    return expiresAt <= Date.now()
+  }
+
   return {
     votingSession,
     loading,
@@ -287,6 +375,10 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
     castVote,
     revealVotes,
     resetVotes,
-    deleteSession
+    deleteSession,
+    getDaysUntilExpiry,
+    isSessionExpired,
+    cleanupExpiredSessions, // Export for manual cleanup if needed
+    extendSessionExpiry // Export for manual extension if needed
   }
 }
