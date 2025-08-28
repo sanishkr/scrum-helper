@@ -77,14 +77,14 @@ const DailyStandup = () => {
         <h2 className="plasmo-text-lg plasmo-font-bold">Actions</h2>
         <button
           onClick={handleShuffleUsers}
-          className="plasmo-bg-green-500 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1 plasmo-text-xs">
+          className="plasmo-bg-green-600 hover:plasmo-bg-green-700 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1 plasmo-text-xs">
           <FaRandom />
           Shuffle
         </button>
         {shuffledUsers.length > 0 && (
           <button
             onClick={handleClearShuffledUsers}
-            className="plasmo-bg-red-500 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1">
+            className="plasmo-bg-red-600 hover:plasmo-bg-red-700 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded plasmo-flex plasmo-items-center plasmo-gap-1">
             <FaCheck />
             Done
           </button>

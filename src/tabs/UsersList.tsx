@@ -81,7 +81,7 @@ const UsersList = () => {
         />
         <button
           onClick={handleAddUser}
-          className="plasmo-bg-blue-500 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded">
+          className="plasmo-bg-blue-600 hover:plasmo-bg-blue-700 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded">
           {editingUserId ? "Update" : "Add"}
         </button>
       </div>
@@ -94,12 +94,12 @@ const UsersList = () => {
             <div>
               <button
                 onClick={() => handleEditUser(user.id)}
-                className="plasmo-mr-2 plasmo-text-blue-500">
+                className="plasmo-mr-2 plasmo-text-blue-600 hover:plasmo-text-blue-700">
                 <FaEdit />
               </button>
               <button
                 onClick={() => handleRemoveUser(user.id)}
-                className="plasmo-text-red-500">
+                className="plasmo-text-red-600 hover:plasmo-text-red-700">
                 <FaTrash />
               </button>
             </div>
