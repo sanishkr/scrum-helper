@@ -25,6 +25,7 @@ interface VotingInterfaceProps {
   onVote: (points: number | string) => void
   onRevealVotes: () => void
   onResetVotes: () => void
+  onRemoveParticipant?: (participantName: string) => void
 }
 
 export const VotingInterface = ({
@@ -39,8 +40,11 @@ export const VotingInterface = ({
   onLeaveSession,
   onVote,
   onRevealVotes,
-  onResetVotes
+  onResetVotes,
+  onRemoveParticipant
 }: VotingInterfaceProps) => {
+  // Check if current user is the session creator
+  const isSessionCreator = votingSession?.createdBy === currentUserName
   return (
     <div className="plasmo-flex plasmo-h-full plasmo-p-4 plasmo-w-full">
       {/* Left Panel - Voting Interface */}
@@ -74,6 +78,8 @@ export const VotingInterface = ({
       <ParticipantsList
         participants={participants}
         isRevealed={votingSession?.isRevealed}
+        isSessionCreator={isSessionCreator}
+        onRemoveParticipant={onRemoveParticipant}
       />
     </div>
   )

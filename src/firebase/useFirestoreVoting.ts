@@ -334,6 +334,45 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
     }
   }
 
+  const removeParticipant = async (userName: string) => {
+    try {
+      if (!currentSessionId) throw new Error("No active session")
+
+      const sessionRef = doc(firestore, "voting-sessions", currentSessionId)
+      const sessionSnap = await getDoc(sessionRef)
+
+      if (!sessionSnap.exists()) {
+        throw new Error("Session not found")
+      }
+
+      const sessionData = sessionSnap.data() as VotingSession
+
+      // Remove user from participants
+      const updatedParticipants = sessionData.participants.filter(
+        (p) => p !== userName
+      )
+
+      // Remove user's vote if they have one
+      const updatedVotes = { ...sessionData.votes }
+      const userVoteKey = Object.keys(updatedVotes).find(
+        (key) => updatedVotes[key].userName === userName
+      )
+      if (userVoteKey) {
+        delete updatedVotes[userVoteKey]
+      }
+
+      await updateDoc(sessionRef, {
+        expiresAt: Date.now() + 10 * 24 * 60 * 60 * 1000, // Extend expiry by 10 days
+        participants: updatedParticipants,
+        votes: updatedVotes
+      })
+    } catch (error) {
+      console.error("Error removing participant:", error)
+      setError(error.message)
+      throw error
+    }
+  }
+
   const deleteSession = async () => {
     try {
       if (!currentSessionId) throw new Error("No active session")
@@ -372,6 +411,7 @@ export const useFirestoreVoting = (initialSessionId: string | null = null) => {
     createVotingSession,
     joinSession,
     leaveSession,
+    removeParticipant,
     castVote,
     revealVotes,
     resetVotes,

@@ -25,6 +25,7 @@ const StoryGrooming = () => {
     createVotingSession,
     joinSession,
     leaveSession,
+    removeParticipant,
     castVote,
     revealVotes,
     resetVotes
@@ -116,6 +117,15 @@ const StoryGrooming = () => {
       await resetVotes()
     } catch (error) {
       console.error("Failed to reset votes:", error)
+    }
+  }
+
+  const handleRemoveParticipant = async (userName: string) => {
+    try {
+      await removeParticipant(userName)
+    } catch (error) {
+      console.error("Failed to remove participant:", error)
+      alert("Failed to remove participant")
     }
   }
 
@@ -258,6 +268,7 @@ const StoryGrooming = () => {
       onVote={handleVote}
       onRevealVotes={handleRevealVotes}
       onResetVotes={handleResetVotes}
+      onRemoveParticipant={handleRemoveParticipant}
     />
   )
 }

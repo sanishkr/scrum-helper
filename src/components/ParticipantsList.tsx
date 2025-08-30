@@ -1,4 +1,4 @@
-import { FaUser } from "react-icons/fa"
+import { FaMinus, FaUser } from "react-icons/fa"
 
 interface Participant {
   name: string
@@ -10,11 +10,15 @@ interface Participant {
 interface ParticipantsListProps {
   participants: Participant[]
   isRevealed: boolean
+  isSessionCreator?: boolean
+  onRemoveParticipant?: (participantName: string) => void
 }
 
 export const ParticipantsList = ({
   participants,
-  isRevealed
+  isRevealed,
+  isSessionCreator = false,
+  onRemoveParticipant
 }: ParticipantsListProps) => {
   return (
     <div className="plasmo-flex plasmo-flex-col plasmo-pl-4 plasmo-min-w-36">
@@ -52,7 +56,7 @@ export const ParticipantsList = ({
                 </span>
               </div>
 
-              <div className="plasmo-flex plasmo-items-center plasmo-flex-shrink-0 plasmo-ml-2">
+              <div className="plasmo-flex plasmo-items-center plasmo-flex-shrink-0 plasmo-ml-2 plasmo-gap-1">
                 {isRevealed ? (
                   // Show actual vote when revealed
                   participant.hasVoted ? (
@@ -67,15 +71,27 @@ export const ParticipantsList = ({
                 ) : // Show vote status when not revealed
                 participant.hasVoted ? (
                   <div
-                    className="plasmo-w-2 plasmo-h-2 plasmo-bg-green-500 plasmo-rounded-full"
+                    className="plasmo-w-2.5 plasmo-h-2.5 plasmo-bg-green-500 plasmo-rounded-full"
                     title="Voted"
                   />
                 ) : (
                   <div
-                    className="plasmo-w-2 plasmo-h-2 plasmo-bg-gray-500 plasmo-rounded-full"
+                    className="plasmo-w-2.5 plasmo-h-2.5 plasmo-bg-gray-500 plasmo-rounded-full"
                     title="Not voted"
                   />
                 )}
+
+                {/* Remove button for session creator (only for other participants, not themselves) */}
+                {isSessionCreator &&
+                  !participant.isCurrentUser &&
+                  onRemoveParticipant && (
+                    <button
+                      onClick={() => onRemoveParticipant(participant.name)}
+                      className="plasmo-w-2.5 plasmo-h-2.5 plasmo-ml-1 plasmo-bg-red-600 plasmo-text-white plasmo-rounded-full plasmo-flex plasmo-items-center plasmo-justify-center hover:plasmo-bg-red-700 plasmo-transition-colors"
+                      title={`Remove ${participant.name}`}>
+                      <FaMinus className="plasmo-w-2.5 plasmo-h-2.5" />
+                    </button>
+                  )}
               </div>
             </div>
           ))}
