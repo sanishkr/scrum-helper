@@ -11,6 +11,7 @@ import { useVoteStats } from "~src/hooks/useVoteStats"
 const StoryGrooming = () => {
   const [showFirebaseTimeout, setShowFirebaseTimeout] = useState(false)
   const [retryAttempts, setRetryAttempts] = useState(0)
+  const [showCopiedToast, setShowCopiedToast] = useState(false)
 
   // Custom hooks
   const userNameHook = useUserName()
@@ -83,7 +84,8 @@ const StoryGrooming = () => {
   const copySessionId = () => {
     if (currentSessionId) {
       navigator.clipboard.writeText(currentSessionId)
-      alert("Session ID copied to clipboard!")
+      setShowCopiedToast(true)
+      setTimeout(() => setShowCopiedToast(false), 2000) // Hide after 2 seconds
     }
   }
 
@@ -255,21 +257,30 @@ const StoryGrooming = () => {
 
   // Active voting session
   return (
-    <VotingInterface
-      votingSession={votingSession}
-      currentSessionId={currentSessionId}
-      currentUserName={userNameHook.currentUserName}
-      currentUserVote={currentUserVote}
-      storyPoints={storyPoints}
-      stats={stats}
-      participants={participants}
-      onCopySessionId={copySessionId}
-      onLeaveSession={handleLeaveSession}
-      onVote={handleVote}
-      onRevealVotes={handleRevealVotes}
-      onResetVotes={handleResetVotes}
-      onRemoveParticipant={handleRemoveParticipant}
-    />
+    <div className="plasmo-relative plasmo-w-full plasmo-overflow-auto">
+      <VotingInterface
+        votingSession={votingSession}
+        currentSessionId={currentSessionId}
+        currentUserName={userNameHook.currentUserName}
+        currentUserVote={currentUserVote}
+        storyPoints={storyPoints}
+        stats={stats}
+        participants={participants}
+        onCopySessionId={copySessionId}
+        onLeaveSession={handleLeaveSession}
+        onVote={handleVote}
+        onRevealVotes={handleRevealVotes}
+        onResetVotes={handleResetVotes}
+        onRemoveParticipant={handleRemoveParticipant}
+      />
+      
+      {/* Toast notification for copied session ID */}
+      {showCopiedToast && (
+        <div className="plasmo-fixed plasmo-top-10 plasmo-left-1/2 plasmo-transform plasmo--translate-x-1/2 plasmo-bg-green-600 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded-lg plasmo-shadow-lg plasmo-z-50 plasmo-text-xs plasmo-font-medium">
+          Session ID copied!
+        </div>
+      )}
+    </div>
   )
 }
 
