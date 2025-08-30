@@ -4439,7 +4439,12 @@ react-refresh@0.14.0:
   resolved "https://registry.npmjs.org/react-refresh/-/react-refresh-0.14.0.tgz"
   integrity sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==
 
-react@*, react@^18.2.0, react@18.2.0:
+react-timer-hook@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.npmjs.org/react-timer-hook/-/react-timer-hook-4.0.5.tgz"
+  integrity sha512-elDxx4OIxBTbm4rXSK5cjBHkq06prO2qY9JzoYxOa11AkL3ij69jp0VuDUOqcehEK38CV0uu7FzUKtPVISRLKA==
+
+react@*, react@^18.2.0, react@>=16.8.0, react@18.2.0:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
