@@ -1,4 +1,11 @@
-import { FaCopy, FaEye, FaEyeSlash, FaRedo, FaUser } from "react-icons/fa"
+import {
+  FaCopy,
+  FaEye,
+  FaEyeSlash,
+  FaRedo,
+  FaSignOutAlt,
+  FaUser
+} from "react-icons/fa"
 
 interface VotingSessionHeaderProps {
   storyTitle?: string
@@ -48,9 +55,9 @@ export const VotingSessionHeader = ({
           </div>
           <button
             onClick={onLeaveSession}
-            className="plasmo-text-xs plasmo-text-red-400 hover:plasmo-text-red-300 plasmo-underline"
+            className="plasmo-p-1 plasmo-text-red-400 hover:plasmo-text-red-300 plasmo-transition-colors"
             title="Leave session">
-            Leave
+            <FaSignOutAlt className="plasmo-w-3 plasmo-h-3" />
           </button>
         </div>
       </div>
